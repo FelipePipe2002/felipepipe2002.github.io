@@ -88,7 +88,7 @@ const CONFIG = {
         ],
         'Game Development': [
             'Learning Unity with C#',
-            'Basic Blender knowledge'
+            'Blender'
         ],
         'Database Management': [
             'PostgreSQL'
@@ -955,6 +955,9 @@ class Terminal {
 
     setSimpleView(enabled) {
         if (!enabled) this.closeSimpleProject();
+        if (enabled && window.location.hash) {
+            window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}`);
+        }
         document.body.classList.toggle('simple-view', enabled);
         this.simplePortfolio.setAttribute('aria-hidden', String(!enabled));
         this.viewToggle.setAttribute('aria-pressed', String(enabled));
