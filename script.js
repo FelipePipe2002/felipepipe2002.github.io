@@ -287,6 +287,11 @@ class Terminal {
         this.setSimpleView(true);
         this.showWelcome();
         this.updateControlButtons();
+        this.initEmberField();
+        window.addEventListener('resize', () => {
+            clearTimeout(this.heroResizeTimeout);
+            this.heroResizeTimeout = setTimeout(() => this.fitHeroName(), 120);
+        });
 
         this.input.addEventListener('keydown', (e) => this.handleKeyDown(e));
 
@@ -970,8 +975,14 @@ class Terminal {
             const href = prefix || this.normalizeUrl(value);
             return `<a href="${href}" target="_blank" rel="noopener noreferrer">${label}</a>`;
         };
+        let quillLetterCount = 0;
+        const quillName = CONFIG.about.name.split('').map(char => {
+            if (char === ' ') return ' ';
+            const delay = quillLetterCount++ * 45;
+            return `<span class="quill-letter" style="animation-delay:${delay}ms">${char}</span>`;
+        }).join('');
         const skills = Object.entries(CONFIG.skills).map(([category, items]) => `
-            <div class="simple-skill-group"><h3>${category}</h3><p>${items.join(' · ')}</p></div>
+            <div class="simple-skill-group"><h3>${category}</h3><p>${items.join(' ❖ ')}</p></div>
         `).join('');
         const experience = CONFIG.cv.experience.map(item => `
             <article class="simple-entry"><div><h3>${item.position}</h3><p>${item.company}</p></div><span>${item.period}</span></article>
@@ -996,16 +1007,23 @@ class Terminal {
         this.simplePortfolio.innerHTML = `
             <nav class="simple-nav" aria-label="Portfolio navigation"><strong>${CONFIG.about.name}</strong><div class="simple-page-tabs">${pageNav}</div><button type="button" id="terminal-view-button">Terminal</button></nav>
             <div class="simple-content">
-                <section class="simple-page simple-hero" data-page="0"><p class="simple-eyebrow">${CONFIG.about.role}</p><h1>${CONFIG.about.name}</h1><p class="simple-lead">${CONFIG.about.summary}</p><p class="simple-location">${CONFIG.about.location}</p><div class="simple-links">${contactLink('Email', CONFIG.contact.email, `mailto:${CONFIG.contact.email}`)}${contactLink('LinkedIn', CONFIG.contact.linkedin)}${contactLink('GitHub', CONFIG.contact.github)}</div></section>
+                <section class="simple-page simple-hero" data-page="0"><p class="simple-eyebrow">${CONFIG.about.role}</p><h1>${quillName}</h1><p class="simple-lead">${CONFIG.about.summary}</p><p class="simple-location">${CONFIG.about.location}</p><div class="simple-links">${contactLink('Email', CONFIG.contact.email, `mailto:${CONFIG.contact.email}`)}${contactLink('LinkedIn', CONFIG.contact.linkedin)}${contactLink('GitHub', CONFIG.contact.github)}</div></section>
                 <section class="simple-page" data-page="1"><p class="simple-eyebrow">Technical profile</p><h2>Skills</h2><div class="simple-skills">${skills}</div></section>
-                <section class="simple-page" data-page="2"><p class="simple-eyebrow">Selected work</p><h2>Projects</h2><div class="simple-projects">${projects}</div></section>
+                <section class="simple-page" data-page="2"><p class="simple-eyebrow">Selected work</p><h2>Projects</h2><div class="simple-projects">${projects}</div><p class="simple-projects-footer">More builds on <a href="${this.normalizeUrl(CONFIG.contact.github)}" target="_blank" rel="noopener noreferrer">GitHub</a></p></section>
                 <section class="simple-page" data-page="3"><p class="simple-eyebrow">Background</p><h2>Experience</h2>${experience}</section>
                 <section class="simple-page" data-page="4"><p class="simple-eyebrow">Education</p><h2>Studies</h2>${education}</section>
                 ${pager}
             </div>
             <article class="simple-project-view" id="simple-project-view" aria-hidden="true"><header><button type="button" class="simple-project-back">&larr; Back to projects</button><p class="simple-eyebrow">Project details</p><h1 id="simple-project-view-title">Project</h1></header><div class="simple-project-detail" id="simple-project-detail"></div></article>`;
         document.getElementById('terminal-view-button').addEventListener('click', () => this.setSimpleView(false));
-        this.simplePortfolio.querySelectorAll('.simple-page-tab').forEach(button => button.addEventListener('click', () => this.showSimplePage(Number(button.dataset.page))));
+        this.simplePortfolio.querySelectorAll('.simple-page-tab').forEach(button => button.addEventListener('click', () => {
+            const pageIndex = Number(button.dataset.page);
+            if (document.body.classList.contains('simple-project-open')) {
+                this.closeSimpleProject(pageIndex);
+            } else {
+                this.showSimplePage(pageIndex);
+            }
+        }));
         this.simplePortfolio.querySelector('.simple-page-previous').addEventListener('click', () => this.showSimplePage(this.simplePageIndex - 1));
         this.simplePortfolio.querySelector('.simple-page-next').addEventListener('click', () => this.showSimplePage(this.simplePageIndex + 1));
         this.simplePortfolio.querySelectorAll('.simple-project-button').forEach(button => {
@@ -1013,6 +1031,28 @@ class Terminal {
         });
         this.simplePortfolio.querySelector('.simple-project-back').addEventListener('click', () => this.closeSimpleProject());
         this.showSimplePage(Number.isInteger(this.simplePageIndex) ? this.simplePageIndex : 0);
+
+        this.fitHeroName();
+        clearTimeout(this.quillUnifyTimeout);
+        const heroH1 = this.simplePortfolio.querySelector('.simple-hero h1');
+        const totalRevealTime = (quillLetterCount - 1) * 45 + 500;
+        this.quillUnifyTimeout = setTimeout(() => {
+            if (heroH1) heroH1.textContent = CONFIG.about.name;
+        }, totalRevealTime + 60);
+    }
+
+    fitHeroName() {
+        const hero = this.simplePortfolio.querySelector('.simple-hero');
+        const h1 = hero && hero.querySelector('h1');
+        if (!hero || !h1) return;
+        h1.style.fontSize = '';
+        let fontSize = parseFloat(getComputedStyle(h1).fontSize);
+        const minFontSize = 22;
+        let guard = 60;
+        while (guard-- > 0 && fontSize > minFontSize && (h1.scrollWidth > h1.clientWidth + 1 || hero.scrollHeight > hero.clientHeight + 1)) {
+            fontSize -= 1;
+            h1.style.fontSize = `${fontSize}px`;
+        }
     }
 
     showSimplePage(index) {
@@ -1028,6 +1068,7 @@ class Terminal {
         this.simplePortfolio.querySelector('.simple-page-next').disabled = this.simplePageIndex === pages.length - 1;
         this.simplePortfolio.querySelector('.simple-page-status').textContent = `${this.simplePageIndex + 1} / ${pages.length}`;
         window.scrollTo({ top: 0, behavior: 'instant' });
+        if (this.simplePageIndex === 0) this.fitHeroName();
     }
 
     async openSimpleProject(projectId) {
@@ -1042,12 +1083,33 @@ class Terminal {
         projectView.querySelector('.simple-project-back').focus();
     }
 
-    closeSimpleProject() {
+    closeSimpleProject(targetPage = 2) {
         const projectView = document.getElementById('simple-project-view');
         if (!projectView) return;
         projectView.setAttribute('aria-hidden', 'true');
         document.body.classList.remove('simple-project-open');
-        this.showSimplePage(2);
+        this.showSimplePage(targetPage);
+    }
+
+    initEmberField() {
+        const EMBER_COUNT = 7;
+        this.emberField = document.createElement('div');
+        this.emberField.className = 'ember-field';
+        this.emberField.setAttribute('aria-hidden', 'true');
+        document.body.appendChild(this.emberField);
+        for (let i = 0; i < EMBER_COUNT; i++) {
+            const ember = document.createElement('span');
+            ember.className = 'ember';
+            const size = 4 + Math.random() * 6;
+            const duration = 10 + Math.random() * 8;
+            const drift = (Math.random() * 2 - 1) * 130;
+            ember.style.setProperty('--size', `${size}px`);
+            ember.style.setProperty('--left', `${Math.random() * 100}%`);
+            ember.style.setProperty('--duration', `${duration}s`);
+            ember.style.setProperty('--drift', `${drift}px`);
+            ember.style.setProperty('--delay', `${-Math.random() * duration}s`);
+            this.emberField.appendChild(ember);
+        }
     }
 
     toggleTypingAnimation(showOutput = true) {
