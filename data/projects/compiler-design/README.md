@@ -4,7 +4,7 @@ Practical Assignments 1 and 2 for the **Compiler Design** course in the Systems 
 
 ## Links
 
-* Repository: https://github.com/FelipePipe2002/Compilador
+- [Open the Compiler Design repository](https://github.com/FelipePipe2002/Compilador)
 
 ## Team
 

@@ -2,10 +2,6 @@
 
 A **native-feeling AI assistant overlay for Windows** that combines text, voice, images, PDFs, persistent conversations, and reusable user memory in a keyboard-accessible desktop interface.
 
-## Links
-
-- [Source code](https://github.com/FelipePipe2002/WindowsHelper)
-
 ## Main Features
 
 - **Global Overlay**: Open or hide the assistant from anywhere in Windows with a configurable hotkey

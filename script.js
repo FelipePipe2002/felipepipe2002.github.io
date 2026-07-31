@@ -986,54 +986,65 @@ class Terminal {
             </article>
         `).join('') || '<p>Projects are loading…</p>';
 
+        const pageNames = ['Profile', 'Technical profile', 'Projects', 'Experience', 'Education'];
+        const pageNav = pageNames.map((name, index) => `<button type="button" class="simple-page-tab" data-page="${index}">${name}</button>`).join('');
+        const pager = `<div class="simple-pager"><button type="button" class="simple-page-previous">&larr; Previous</button><span class="simple-page-status"></span><button type="button" class="simple-page-next">Next &rarr;</button></div>`;
+
         this.simplePortfolio.innerHTML = `
-            <nav class="simple-nav" aria-label="Portfolio navigation">
-                <strong>${CONFIG.about.name}</strong>
-                <div><a href="#simple-projects">Projects</a><a href="#simple-experience">Experience</a>
-                    <button type="button" id="terminal-view-button" title="Switch to terminal view">Terminal view</button></div>
-            </nav>
+            <nav class="simple-nav" aria-label="Portfolio navigation"><strong>${CONFIG.about.name}</strong><div class="simple-page-tabs">${pageNav}</div><button type="button" id="terminal-view-button">Terminal</button></nav>
             <div class="simple-content">
-                <header class="simple-hero"><p class="simple-eyebrow">${CONFIG.about.role}</p><h1>${CONFIG.about.name}</h1>
-                    <p class="simple-lead">${CONFIG.about.summary}</p><p class="simple-location">${CONFIG.about.location}</p>
-                    <div class="simple-links">${contactLink('Email', CONFIG.contact.email, `mailto:${CONFIG.contact.email}`)}${contactLink('LinkedIn', CONFIG.contact.linkedin)}${contactLink('GitHub', CONFIG.contact.github)}</div>
-                </header>
-                <section><p class="simple-eyebrow">Technical profile</p><h2>Skills</h2><div class="simple-skills">${skills}</div></section>
-                <section id="simple-projects"><p class="simple-eyebrow">Selected work</p><h2>Projects</h2><div class="simple-projects">${projects}</div></section>
-                <section id="simple-experience"><p class="simple-eyebrow">Background</p><h2>Experience</h2>${experience}</section>
-                <section><p class="simple-eyebrow">Education</p><h2>Studies</h2>${education}</section>
-                <footer><p>Interested in backend and software development opportunities.</p>${contactLink(CONFIG.contact.email, CONFIG.contact.email, `mailto:${CONFIG.contact.email}`)}</footer>
+                <section class="simple-page simple-hero" data-page="0"><p class="simple-eyebrow">${CONFIG.about.role}</p><h1>${CONFIG.about.name}</h1><p class="simple-lead">${CONFIG.about.summary}</p><p class="simple-location">${CONFIG.about.location}</p><div class="simple-links">${contactLink('Email', CONFIG.contact.email, `mailto:${CONFIG.contact.email}`)}${contactLink('LinkedIn', CONFIG.contact.linkedin)}${contactLink('GitHub', CONFIG.contact.github)}</div></section>
+                <section class="simple-page" data-page="1"><p class="simple-eyebrow">Technical profile</p><h2>Skills</h2><div class="simple-skills">${skills}</div></section>
+                <section class="simple-page" data-page="2"><p class="simple-eyebrow">Selected work</p><h2>Projects</h2><div class="simple-projects">${projects}</div></section>
+                <section class="simple-page" data-page="3"><p class="simple-eyebrow">Background</p><h2>Experience</h2>${experience}</section>
+                <section class="simple-page" data-page="4"><p class="simple-eyebrow">Education</p><h2>Studies</h2>${education}</section>
+                ${pager}
             </div>
-            <div class="simple-project-modal" id="simple-project-modal" role="dialog" aria-modal="true" aria-labelledby="simple-project-modal-title" aria-hidden="true">
-                <button type="button" class="simple-project-backdrop" aria-label="Close project details"></button>
-                <div class="simple-project-panel">
-                    <header><p class="simple-eyebrow">Project details</p><h2 id="simple-project-modal-title">Project</h2><button type="button" class="simple-project-close" aria-label="Close project details">&times;</button></header>
-                    <div class="simple-project-detail" id="simple-project-detail"></div>
-                </div>
-            </div>`;
+            <article class="simple-project-view" id="simple-project-view" aria-hidden="true"><header><button type="button" class="simple-project-back">&larr; Back to projects</button><p class="simple-eyebrow">Project details</p><h1 id="simple-project-view-title">Project</h1></header><div class="simple-project-detail" id="simple-project-detail"></div></article>`;
         document.getElementById('terminal-view-button').addEventListener('click', () => this.setSimpleView(false));
+        this.simplePortfolio.querySelectorAll('.simple-page-tab').forEach(button => button.addEventListener('click', () => this.showSimplePage(Number(button.dataset.page))));
+        this.simplePortfolio.querySelector('.simple-page-previous').addEventListener('click', () => this.showSimplePage(this.simplePageIndex - 1));
+        this.simplePortfolio.querySelector('.simple-page-next').addEventListener('click', () => this.showSimplePage(this.simplePageIndex + 1));
         this.simplePortfolio.querySelectorAll('.simple-project-button').forEach(button => {
             button.addEventListener('click', () => this.openSimpleProject(button.dataset.projectId));
         });
-        this.simplePortfolio.querySelector('.simple-project-close').addEventListener('click', () => this.closeSimpleProject());
-        this.simplePortfolio.querySelector('.simple-project-backdrop').addEventListener('click', () => this.closeSimpleProject());
+        this.simplePortfolio.querySelector('.simple-project-back').addEventListener('click', () => this.closeSimpleProject());
+        this.showSimplePage(Number.isInteger(this.simplePageIndex) ? this.simplePageIndex : 0);
+    }
+
+    showSimplePage(index) {
+        const pages = this.simplePortfolio.querySelectorAll('.simple-page');
+        if (!pages.length) return;
+        this.simplePageIndex = Math.max(0, Math.min(index, pages.length - 1));
+        pages.forEach((page, pageIndex) => page.classList.toggle('is-active', pageIndex === this.simplePageIndex));
+        this.simplePortfolio.querySelectorAll('.simple-page-tab').forEach((button, pageIndex) => {
+            button.classList.toggle('is-active', pageIndex === this.simplePageIndex);
+            button.setAttribute('aria-current', pageIndex === this.simplePageIndex ? 'page' : 'false');
+        });
+        this.simplePortfolio.querySelector('.simple-page-previous').disabled = this.simplePageIndex === 0;
+        this.simplePortfolio.querySelector('.simple-page-next').disabled = this.simplePageIndex === pages.length - 1;
+        this.simplePortfolio.querySelector('.simple-page-status').textContent = `${this.simplePageIndex + 1} / ${pages.length}`;
+        window.scrollTo({ top: 0, behavior: 'instant' });
     }
 
     async openSimpleProject(projectId) {
         const project = await this.loadProjectDetails(projectId);
         if (!project) return;
-        const modal = document.getElementById('simple-project-modal');
-        document.getElementById('simple-project-modal-title').textContent = project.name;
+        const projectView = document.getElementById('simple-project-view');
+        document.getElementById('simple-project-view-title').textContent = project.name;
         document.getElementById('simple-project-detail').innerHTML = markdownParser.parse(project.content);
-        modal.setAttribute('aria-hidden', 'false');
+        projectView.setAttribute('aria-hidden', 'false');
         document.body.classList.add('simple-project-open');
-        modal.querySelector('.simple-project-close').focus();
+        window.scrollTo({ top: 0, behavior: 'instant' });
+        projectView.querySelector('.simple-project-back').focus();
     }
 
     closeSimpleProject() {
-        const modal = document.getElementById('simple-project-modal');
-        if (!modal) return;
-        modal.setAttribute('aria-hidden', 'true');
+        const projectView = document.getElementById('simple-project-view');
+        if (!projectView) return;
+        projectView.setAttribute('aria-hidden', 'true');
         document.body.classList.remove('simple-project-open');
+        this.showSimplePage(2);
     }
 
     toggleTypingAnimation(showOutput = true) {

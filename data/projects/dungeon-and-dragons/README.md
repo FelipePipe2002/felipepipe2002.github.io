@@ -2,10 +2,6 @@
 
 A **full-stack platform for running and organizing tabletop RPG campaigns**, built to keep world information, encounters, maps, and game-master tools in one place.
 
-## Links
-
-- [Source code](https://github.com/FelipePipe2002/DungeonAndDragons)
-
 ## Main Features
 
 - **Interactive World Map**: Browse, edit, pan, and zoom through campaign landmarks
