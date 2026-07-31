@@ -336,6 +336,12 @@ class Terminal {
             }
             lastTouchEnd = now;
         }, false);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && document.body.classList.contains('simple-project-open')) {
+                this.closeSimpleProject();
+            }
+        });
     }
 
     handleKeyDown(e) {
@@ -948,6 +954,7 @@ class Terminal {
     }
 
     setSimpleView(enabled) {
+        if (!enabled) this.closeSimpleProject();
         document.body.classList.toggle('simple-view', enabled);
         this.simplePortfolio.setAttribute('aria-hidden', String(!enabled));
         this.viewToggle.setAttribute('aria-pressed', String(enabled));
@@ -970,8 +977,13 @@ class Terminal {
             <article class="simple-entry"><div><h3>${item.degree}</h3><p>${item.school}</p></div><span>${item.period}</span></article>
         `).join('');
         const projects = CONFIG.projects.map(project => `
-            <article class="simple-project"><span>${project.id}</span><h3>${project.name}</h3><p>${project.description}</p>
-                ${project.liveUrl ? `<a class="simple-project-link" href="${project.liveUrl}" target="_blank" rel="noopener noreferrer">View live project</a>` : ''}</article>
+            <article class="simple-project">
+                <div><p class="simple-project-label">Selected project</p><h3>${project.name}</h3><p>${project.description}</p></div>
+                <div class="simple-project-actions">
+                    <button type="button" class="simple-project-button" data-project-id="${project.id}" aria-label="View ${project.name}">View project <span aria-hidden="true">&rarr;</span></button>
+                    ${project.liveUrl ? `<a class="simple-project-link" href="${project.liveUrl}" target="_blank" rel="noopener noreferrer">Live site <span aria-hidden="true">&#8599;</span></a>` : ''}
+                </div>
+            </article>
         `).join('') || '<p>Projects are loading…</p>';
 
         this.simplePortfolio.innerHTML = `
@@ -990,8 +1002,38 @@ class Terminal {
                 <section id="simple-experience"><p class="simple-eyebrow">Background</p><h2>Experience</h2>${experience}</section>
                 <section><p class="simple-eyebrow">Education</p><h2>Studies</h2>${education}</section>
                 <footer><p>Interested in backend and software development opportunities.</p>${contactLink(CONFIG.contact.email, CONFIG.contact.email, `mailto:${CONFIG.contact.email}`)}</footer>
+            </div>
+            <div class="simple-project-modal" id="simple-project-modal" role="dialog" aria-modal="true" aria-labelledby="simple-project-modal-title" aria-hidden="true">
+                <button type="button" class="simple-project-backdrop" aria-label="Close project details"></button>
+                <div class="simple-project-panel">
+                    <header><p class="simple-eyebrow">Project details</p><h2 id="simple-project-modal-title">Project</h2><button type="button" class="simple-project-close" aria-label="Close project details">&times;</button></header>
+                    <div class="simple-project-detail" id="simple-project-detail"></div>
+                </div>
             </div>`;
         document.getElementById('terminal-view-button').addEventListener('click', () => this.setSimpleView(false));
+        this.simplePortfolio.querySelectorAll('.simple-project-button').forEach(button => {
+            button.addEventListener('click', () => this.openSimpleProject(button.dataset.projectId));
+        });
+        this.simplePortfolio.querySelector('.simple-project-close').addEventListener('click', () => this.closeSimpleProject());
+        this.simplePortfolio.querySelector('.simple-project-backdrop').addEventListener('click', () => this.closeSimpleProject());
+    }
+
+    async openSimpleProject(projectId) {
+        const project = await this.loadProjectDetails(projectId);
+        if (!project) return;
+        const modal = document.getElementById('simple-project-modal');
+        document.getElementById('simple-project-modal-title').textContent = project.name;
+        document.getElementById('simple-project-detail').innerHTML = markdownParser.parse(project.content);
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('simple-project-open');
+        modal.querySelector('.simple-project-close').focus();
+    }
+
+    closeSimpleProject() {
+        const modal = document.getElementById('simple-project-modal');
+        if (!modal) return;
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('simple-project-open');
     }
 
     toggleTypingAnimation(showOutput = true) {
