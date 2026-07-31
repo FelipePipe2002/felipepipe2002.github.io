@@ -1,0 +1,5 @@
+{
+  "id": "home-finance-app",
+  "name": "Home Finance App",
+  "description": "Offline-first React Native application for tracking income, expenses, installments, budgets, exchange rates, and savings goals"
+}

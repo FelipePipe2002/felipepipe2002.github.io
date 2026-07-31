@@ -1,0 +1,5 @@
+{
+  "id": "dungeon-and-dragons",
+  "name": "Dungeon & Dragons Campaign Manager",
+  "description": "Full-stack campaign management platform with interactive world maps, tactical battles, dungeon tools, JWT authentication, and a Spring Boot/PostgreSQL API"
+}

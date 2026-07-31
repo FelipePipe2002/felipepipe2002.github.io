@@ -1,0 +1,5 @@
+{
+  "id": "compiler-design",
+  "name": "Compiler Design",
+  "description": "Implementation of the first compiler phases: lexical analysis, syntax analysis, and communication between both components using BYACC"
+}

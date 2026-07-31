@@ -1,0 +1,5 @@
+{
+  "id": "pac-man-console",
+  "name": "Pac-Man Console Game",
+  "description": "C++20 console Pac-Man game with real-time movement, JSON-driven maps, terminal rendering, scoring, portals, fruit bonuses, and strategy-pattern ghost AI"
+}

@@ -1,0 +1,6 @@
+{
+  "id": "medical-appointments",
+  "name": "Medical Appointments & Healthcare Management System",
+  "description": "Web application for managing medical appointments, patients, healthcare records, reports, and role-based access for UNICEN's Health Department",
+  "liveUrl": "https://atenciones.bienestar.unicen.edu.ar"
+}

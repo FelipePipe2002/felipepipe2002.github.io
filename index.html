@@ -1,37 +1,116 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Portfolio</title>
-    <link rel="stylesheet" href="css/style.css" />
-  </head>
-  <body>
-    <div id="console">
-      <div id="console-header">
-        <h3 id="console-name">Portafolio</h3>
-        <div id="console-header-right">
-          <button id="maximize">
-            <img src="images/minus.png" alt="maximize" />
-          </button>
-          <button id="minimize">
-            <img src="images/copy.png" alt="minimize" />
-          </button>
-          <button id="exit"><img src="images/close.png" alt="exit" /></button>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Terminal</title>
+    <link rel="stylesheet" href="styles.css?v=20260731-view-toggle">
+</head>
+<body>
+    <canvas id="particle-canvas"></canvas>
+
+    <div class="main-container">
+        <div class="terminal-container">
+            <div class="scanline"></div>
+            <div class="terminal-header">
+                <div class="terminal-buttons">
+                    <span class="terminal-button close"></span>
+                    <span class="terminal-button minimize"></span>
+                    <span class="terminal-button maximize"></span>
+                </div>
+                <div class="terminal-title">portfolio@terminal:~</div>
+                <div class="terminal-controls" aria-label="Terminal controls">
+                    <button
+                        type="button"
+                        class="terminal-control view-control"
+                        id="view-toggle"
+                        aria-label="Switch to simple portfolio"
+                        aria-pressed="false"
+                        title="Switch to simple portfolio"
+                    >
+                        <svg class="icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="16" rx="2"></rect>
+                            <path d="M7 8h4M7 12h10M7 16h7"></path>
+                        </svg>
+                    </button>
+                    <button
+                        type="button"
+                        class="terminal-control sound-control"
+                        id="sound-toggle"
+                        aria-label="Toggle sound"
+                        aria-pressed="true"
+                        title="Toggle sound"
+                    >
+                        <svg class="icon icon-on" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M11 5 6 9H2v6h4l5 4V5Z"></path>
+                            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+                        </svg>
+                        <svg class="icon icon-off" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M11 5 6 9H2v6h4l5 4V5Z"></path>
+                            <path d="m22 9-6 6"></path>
+                            <path d="m16 9 6 6"></path>
+                        </svg>
+                    </button>
+                    <button
+                        type="button"
+                        class="terminal-control animation-control"
+                        id="animation-toggle"
+                        aria-label="Toggle animation"
+                        aria-pressed="true"
+                        title="Toggle animation"
+                    >
+                        <svg class="icon icon-on" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 5a2 2 0 0 1 3.01-1.73l10 6a2 2 0 0 1 0 3.46l-10 6A2 2 0 0 1 5 17V5Z"></path>
+                        </svg>
+                        <svg class="icon icon-off" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="14" y="4" width="4" height="16" rx="1"></rect>
+                            <rect x="6" y="4" width="4" height="16" rx="1"></rect>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="terminal-content">
+                <div class="terminal-output" id="terminal-output"></div>
+
+                <div class="terminal-input-line">
+                    <span class="prompt">visitor@portfolio:~$</span>
+                    <input
+                        type="text"
+                        id="terminal-input"
+                        class="terminal-input"
+                        autofocus
+                        autocomplete="off"
+                        spellcheck="false"
+                    />
+                </div>
+            </div>
         </div>
-      </div>
-      <div id="console-body">
-        <div id="content">
-          <!--Contenido aca-->
+
+        <div class="project-details-container" id="project-details-container">
+            <div class="scanline"></div>
+            <div class="terminal-header">
+                <div class="terminal-buttons">
+                    <span class="terminal-button close" id="close-project-details"></span>
+                    <span class="terminal-button minimize"></span>
+                    <span class="terminal-button maximize"></span>
+                </div>
+                <div class="terminal-title" id="project-title">Project Details</div>
+            </div>
+
+            <div class="terminal-content">
+                <div class="project-details-content" id="project-details-content">
+                    <!-- Project details will be dynamically inserted here -->
+                </div>
+            </div>
         </div>
-        <textarea
-          id="command"
-          placeholder="Type a command or use /help"
-          oninput='this.style.height = "";this.style.height = this.scrollHeight + "px"'
-        >
-        </textarea>
-      </div>
+
+        <main class="simple-portfolio" id="simple-portfolio" aria-hidden="true"></main>
     </div>
-    <script src="js/script.js"></script>
-  </body>
+
+    <script src="particles.js?v=20260531"></script>
+    <script src="markdown-parser.js?v=20260531"></script>
+    <script src="script.js?v=20260731-recruiter-default"></script>
+</body>
 </html>
