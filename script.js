@@ -1033,12 +1033,6 @@ class Terminal {
         this.showSimplePage(Number.isInteger(this.simplePageIndex) ? this.simplePageIndex : 0);
 
         this.fitHeroName();
-        clearTimeout(this.quillUnifyTimeout);
-        const heroH1 = this.simplePortfolio.querySelector('.simple-hero h1');
-        const totalRevealTime = (quillLetterCount - 1) * 45 + 500;
-        this.quillUnifyTimeout = setTimeout(() => {
-            if (heroH1) heroH1.textContent = CONFIG.about.name;
-        }, totalRevealTime + 60);
     }
 
     fitHeroName() {
